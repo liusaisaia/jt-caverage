@@ -1,0 +1,42 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "node": "current",
+        "browsers": ["last 2 versions"]
+      }
+    }]
+  ],
+  "env": {
+    "development": {
+      "plugins": [
+        ["istanbul", {
+          "exclude": [
+            "**/*.spec.js",
+            "**/*.test.js"
+          ]
+        }]
+      ]
+    },
+    "test": {
+      "plugins": [
+        ["istanbul", {
+          "exclude": [
+            "**/*.spec.js",
+            "**/*.test.js"
+          ]
+        }]
+      ]
+    },
+    "uat": {
+      "plugins": [
+        ["istanbul", {
+          "exclude": [
+            "**/*.spec.js",
+            "**/*.test.js"
+          ]
+        }]
+      ]
+    }
+  }
+}

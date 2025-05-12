@@ -1,0 +1,22 @@
+{
+  "name": "dev-coverage-test",
+  "version": "1.0.0",
+  "description": "测试dev-coverage包的示例项目",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cross-env": "^7.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/preset-env": "^7.22.5",
+    "babel-plugin-istanbul": "^6.1.1",
+    "coverage-source-map-trace-plugin": "^1.0.0"
+  }
+}
