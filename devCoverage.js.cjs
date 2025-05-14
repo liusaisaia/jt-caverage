@@ -4,16 +4,26 @@
 let coverageLogIntervalId = null;
 let currentCoverageKey = '__coverage__'; // 默认的覆盖率数据字段名
 const IS_DEVELOPMENT = ['development', 'test', 'uat'].includes(process.env.NODE_ENV);
+// gitlab token
+let gitlab_token = ''
+// 项目名称
+let project_name = 'sqs'
+// app_name
+let app_name = ''
+// app_Id 
+let app_id = ''
+// 国家
+let country_name = ''
 
 /**
  * 设置手动保存覆盖率数据的全局函数 window.saveCoverage
  */
-function setupManualSave({ saveCoverageName } = {}) {
-  if (!IS_DEVELOPMENT) return;
+function setupManualSave({ gitlabToken, projectName, country }) {
 
-  if (saveCoverageName && typeof saveCoverageName === 'string') {
-    currentCoverageKey = saveCoverageName;
-  }
+  if (!IS_DEVELOPMENT) return;
+  gitlab_token = gitlabToken || ''
+  project_name = projectName || ''
+  country_name = country
 
   window.saveCoverage = () => {
     const coverageData = window[currentCoverageKey];
@@ -86,13 +96,20 @@ function collectFinalCoverage() {
   // 修改coverageData数据key 直接更改key 值删掉项目名
 
   if (coverageData) {
-    fetch('http://10.66.103.58:4399/api/uat/coverage', {
+    fetch('http://10.99.72.87:4399/api/coverage', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         env: process.env.NODE_ENV
       },
-      body: JSON.stringify(coverageData)
+      body: JSON.stringify({
+        data: window.__coverage__,
+        gitlabToken: gitlab_token,
+        appName: app_name,
+        country: country_name,
+        projectName: project_name,
+        appId: app_id
+      })
     })
       .then(response => response.json())
       .then(data => {

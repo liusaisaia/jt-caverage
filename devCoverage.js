@@ -17,7 +17,7 @@ const country_name = ''
 /**
  * 设置手动保存覆盖率数据的全局函数 window.saveCoverage
 */
-export function setupManualSave({saveCoverageName, gitlabToken, projectName, country}) {
+export function setupManualSave({ gitlabToken, projectName, country }) {
   if (!IS_DEVELOPMENT) return
   gitlab_token = gitlabToken || ''
   project_name = projectName || ''

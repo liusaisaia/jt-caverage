@@ -1,11 +1,12 @@
 {
   "name": "jt-coverage",
-  "version": "1.0.11",
+  "version": "1.0.1beta3",
   "description": "代码覆盖率收集工具",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "nyc mocha test/simple.test.js",
-    "coverage": "nyc report --reporter=html"
+    "coverage": "nyc report --reporter=html",
+    "pub:c": "npm publish --registry=https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/"
   },
   "author": "",
   "license": "ISC",
