@@ -1,66 +1,25 @@
 {
   "name": "jt-coverage",
-  "version": "1.0.1beta3",
-  "description": "代码覆盖率收集工具",
-  "main": "dist/index.js",
+  "version": "0.0.2beta",
+  "description": "A wrapper for coverage-source-map-trace-plugin, babel-plugin-istanbul and nyc.",
+  "main": "index.js",
   "scripts": {
-    "test": "nyc mocha test/simple.test.js",
-    "coverage": "nyc report --reporter=html",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "pub:c": "npm publish --registry=https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "nyc": "^15.1.0",
-    "babel-plugin-istanbul": "^6.1.1",
-    "@babel/core": "^7.26.10",
-    "@babel/preset-env": "^7.26.9"
   },
   "keywords": [
     "coverage",
-    "istanbul",
-    "nyc"
+    "source-map",
+    "babel",
+    "nyc",
+    "plugin"
   ],
-  "nyc": {
-    "extension": [
-      ".js",
-      ".jsx",
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      "**/*.spec.js",
-      "**/*.test.js",
-      "node_modules"
-    ],
-    "all": true
-  },
-  "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/register": "^7.25.9",
-    "babel-eslint": "^10.1.0",
-    "babel-plugin-istanbul": "^7.0.0",
-    "cross-env": "^7.0.3",
-    "eslint": "^9.26.0",
-    "eslint-plugin-vue": "^10.1.0",
-    "mocha": "^11.1.0"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {
-      "no-console": "off",
-      "no-debugger": "off"
-    }
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "dayjs": "^1.10.0",
+    "coverage-source-map-trace-plugin": "^1.0.0",
+    "babel-plugin-istanbul": "^6.0.0",
+    "vue": "^2.6.0 || ^3.0.0"
   }
 }
