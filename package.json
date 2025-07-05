@@ -1,11 +1,13 @@
 {
   "name": "jt-coverage",
-  "version": "0.0.2beta",
+  "version": "0.0.11beta",
   "description": "A wrapper for coverage-source-map-trace-plugin, babel-plugin-istanbul and nyc.",
-  "main": "index.js",
+  "main": "dist/jt-coverage.cjs.js",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pub:c": "npm publish --registry=https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/"
+    "pub:c": "npm publish --registry=https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/",
+    "build": "vite build"
   },
   "keywords": [
     "coverage",
@@ -17,9 +19,19 @@
   "author": "",
   "license": "MIT",
   "peerDependencies": {
-    "dayjs": "^1.10.0",
-    "coverage-source-map-trace-plugin": "^1.0.0",
     "babel-plugin-istanbul": "^6.0.0",
-    "vue": "^2.6.0 || ^3.0.0"
-  }
+    "coverage-source-map-trace-plugin": "^1.0.0",
+    "dayjs": "^1.10.0",
+    "vue": "^2.6.0 || ^3.0.0",
+    "element-ui": "^2.10.1"
+  },
+  "devDependencies": {
+    "vite": "^2.9.0",
+    "vue": "^2.6.14",
+    "vue-template-compiler": "^2.6.14"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue2": "1.1.2"
+  },
+  "files": ["dist", "lib"]
 }
