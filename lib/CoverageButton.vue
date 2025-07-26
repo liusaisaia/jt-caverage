@@ -1,56 +1,58 @@
 <template>
-  <div class="global-dialog-button">
-    <el-button
-      type="primary"
+  <div class="coverage-button-wrapper">
+    <div
       @click="handleClose"
-      class="floating-button">
-      <i class="el-icon-hot-water"></i>
-    </el-button>
+      @mouseenter="isHovered = true"
+      @mouseleave="isHovered = false"
+      :class="['coverage-edge-btn', { active: coverage, expanded: isHovered }]"
+      :title="coverage ? '点击关闭覆盖率收集' : '点击开启覆盖率收集'"
+    >
+      <!-- 图标部分 -->
+      <div class="btn-icon">
+        <i :class="coverage ? 'el-icon-video-pause' : 'el-icon-data-analysis'"></i>
+      </div>
+
+      <!-- 状态指示器 -->
+      <div v-if="coverage" class="status-dot"></div>
+    </div>
   </div>
 </template>
 
 <script>
-import { startCoveragePolling, stopCoveragePolling, collectFinalCoverage } from './devCoverage';
+import { startCoveragePolling, stopCoveragePolling, collectFinalCoverage } from './devCoverage'
 
 export default {
   name: 'CoverageButton',
   props: {
-    // 主项目名称，用于 localStorage 和数据上报
-    applicationName: {
-      type: String,
-      required: true,
-    },
     // 国家/地区代码
     country: {
       type: String,
-      default: 'my',
+      default: 'my'
     },
     // 在哪些分支上显示按钮
     visibleBranches: {
       type: Array,
-      default: () => ['lss-test'], // 保持默认行为，但现在可以被覆盖
+      default: () => ['lss-test'] // 保持默认行为，但现在可以被覆盖
     },
     pollingInterval: {
       type: Number,
-      default: 1000,
-    },
+      default: 3000
+    }
   },
   data() {
     return {
       // 是否开启覆盖率任务
       coverage: false,
-      showBtn: false,
-      branch: {}
+      branch: {},
+      isHovered: false
     }
   },
   created() {
     // 判断当前项目分支
     const branchStr = process?.env?.GIT_BRANCH
-    this.branch = branchStr ? JSON.parse(branchStr) : {};
-    this.showBtn = this.visibleBranches.includes(this.branch?.branchName);
-    console.log(this.branch, '----------->branch')
-    if (localStorage.getItem(`${this.applicationName}OpenCover`) === 'open') {
-      this.startCoverage();
+    this.branch = branchStr ? JSON.parse(branchStr) : {}
+    if (localStorage.getItem(`${this.branch.projectName}OpenCover`) === 'open') {
+      this.startCoverage()
       this.coverage = true
     }
   },
@@ -63,12 +65,13 @@ export default {
       }).then(() => {
         this.coverage = !this.coverage
         if (this.coverage) {
+          localStorage.setItem(`${this.branch.projectName}OpenCover`, 'open')
           // 刷新页面
-          // location.reload();
-          this.startCoverage();
+          location.reload()
         } else {
-          stopCoveragePolling();
-          collectFinalCoverage(); // 收集并处理最终数据
+          stopCoveragePolling()
+          collectFinalCoverage() // 收集并处理最终数据
+          localStorage.removeItem(`${this.branch.projectName}OpenCover`)
         }
       })
     },
@@ -77,48 +80,159 @@ export default {
         // 国家
         country: this.country,
         // 项目
-        applicationName: this.applicationName,
-        coverageKey: this.applicationName, // 覆盖率键名，用于区分不同的覆盖率数据
         intervalMilliseconds: this.pollingInterval, // 轮询间隔时间，单位毫秒
         branch: this.branch // 分支信息
-      }); // 设置 window.saveCoverage
-    },
-    /**
-     * 伪代码测试覆盖率数据收集
-     */
-    pseudocode() {
-      if (process.env.VUE_APP_ENV === 'prod') {
-        return;
-      }
-      startCoveragePolling({
-        // 国家
-        country: this.country,
-        // 项目
-        applicationName: this.applicationName,
-        coverageKey: this.applicationName, // 覆盖率键名，用于区分不同的覆盖率数据
-        intervalMilliseconds: 30000 // 轮询间隔时间，单位毫秒
-      })
+      }) // 设置 window.saveCoverage
     }
   },
   // 组件销毁停止轮询
   beforeDestroy() {
-    stopCoveragePolling();
-    collectFinalCoverage(); // 收集并处理最终数据
+    stopCoveragePolling()
+    collectFinalCoverage() // 收集并处理最终数据
   }
 }
 </script>
 
 <style>
-.floating-button {
+.coverage-button-wrapper {
   position: fixed;
-  right: 0px;
+  right: 0;
   bottom: 50%;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  font-size: 20px;
+  transform: translateY(50%);
   z-index: 9999;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  padding: 0;
+}
+
+.coverage-edge-btn {
+  background: #ffffff;
+  border: 1px solid #e1e5e9;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  padding: 6px;
+  cursor: pointer;
+  box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  position: relative;
+
+  /* 固定宽度，默认隐藏在边缘 */
+  width: 20px;
+  transform: translateX(calc(100% - 20px));
+}
+
+/* 悬浮时完全滑出 */
+.coverage-edge-btn.expanded {
+  transform: translateX(0);
+  box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #409eff;
+}
+
+/* 激活状态 */
+.coverage-edge-btn.active {
+  background: #fff2f0;
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+}
+
+.coverage-edge-btn.active.expanded {
+  border-color: #ff7875;
+  box-shadow: -4px 4px 12px rgba(255, 77, 79, 0.2);
+}
+
+.btn-icon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+}
+
+.btn-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #606266;
+  white-space: nowrap;
+}
+
+.coverage-edge-btn.active .btn-label {
+  color: #ff4d4f;
+}
+
+/* 状态指示器 */
+.status-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  background: #52c41a;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 4px rgba(82, 196, 26, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(82, 196, 26, 0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .coverage-edge-btn {
+    width: 90px;
+    transform: translateX(calc(100% - 36px));
+  }
+
+  .btn-icon {
+    font-size: 14px;
+  }
+
+  .btn-label {
+    font-size: 11px;
+  }
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .coverage-edge-btn {
+    background: #2c2c2c;
+    border-color: #404040;
+    color: #ffffff;
+    box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .coverage-edge-btn.expanded {
+    border-color: #409eff;
+    background: #363636;
+    box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .coverage-edge-btn.active {
+    background: #3d2b2b;
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+  }
+
+  .btn-label {
+    color: #cccccc;
+  }
+
+  .coverage-edge-btn.active .btn-label {
+    color: #ff6b6b;
+  }
 }
 </style>

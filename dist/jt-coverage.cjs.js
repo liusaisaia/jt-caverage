@@ -6,6 +6,8 @@ let cachedGitInfo = null;
 const getGitInfo = () => {
   if (cachedGitInfo)
     return cachedGitInfo;
+  const fullRepoPath = execSync("git rev-parse --show-toplevel", { stdio: "pipe" }).toString().trim();
+  const projectName = path.basename(fullRepoPath);
   const dayjs = require("dayjs");
   const commitHash = execSync("git rev-parse --short=8 HEAD").toString().trim();
   const fullCommitId = execSync("git rev-parse HEAD").toString().trim();
@@ -17,19 +19,10 @@ const getGitInfo = () => {
     "fullCommitId": "${fullCommitId}",
     "branchName": "${branchName}",
     "timestamp": "${dayjs().format("YYYY-MM-DD HH:mm:ss")}",
-    "projectName": "${getProjectName()}",
-    "coverageKey": "${handleProjectName(getProjectName())}"
+    "projectName": "${projectName}",
+    "coverageKey": "${handleProjectName(projectName)}"
   }`;
   return cachedGitInfo;
-};
-const getProjectName = () => {
-  try {
-    const topLevelPath = execSync("git rev-parse --show-toplevel", { stdio: "pipe" }).toString().trim();
-    return path.basename(topLevelPath);
-  } catch (error) {
-    console.error("[jt-coverage] \u83B7\u53D6\u9879\u76EE\u540D\u79F0\u5931\u8D25:", error.message);
-    return "\u672A\u77E5\u9879\u76EE";
-  }
 };
 const getVueConfig = (config) => {
   config.plugin("coverage-source-map-trace-plugin").use(CoverageSourceMapTracePlugin).end().plugin("define").tap((args) => {
@@ -47,19 +40,21 @@ const getBabelConfig = (options = {}) => {
   }];
 };
 const handleProjectName = (projectName) => {
-  return projectName.replace(/-/g, "_");
+  return `__${projectName.replace(/-/g, "_")}__`;
 };
 const setupCoverage = (config, options = {}) => {
   if (!config) {
     throw new Error("[jt-coverage] config\u53C2\u6570\u4E0D\u80FD\u4E3A\u7A7A");
   }
   getGitInfo();
+  const cachedGitInfoData = JSON.parse(cachedGitInfo);
   if (options.coverageVariable) {
-    cachedGitInfo.projectName = options.coverageVariable;
-    cachedGitInfo.coverageKey = handleProjectName(options.coverageVariable);
+    cachedGitInfoData.projectName = options.coverageVariable;
+    cachedGitInfoData.coverageKey = handleProjectName(options.coverageVariable);
   }
+  cachedGitInfo = JSON.stringify(cachedGitInfoData);
   getVueConfig(config);
-  const babelConfig = getBabelConfig({ ...options, coverageVariable: cachedGitInfo.coverageKey });
+  const babelConfig = getBabelConfig({ ...options, coverageVariable: cachedGitInfoData.coverageKey });
   if (options.applyBabel !== false) {
     config.module.rule("js").use("babel-loader").tap((opts) => {
       if (!opts)
@@ -71,9 +66,6 @@ const setupCoverage = (config, options = {}) => {
     });
   }
   return config;
-};
-CoverageButton.install = function(Vue) {
-  Vue.component(CoverageButton.name, CoverageButton);
 };
 module.exports = {
   getVueConfig,

@@ -16,6 +16,8 @@ let cachedGitInfo = null
  */
 const getGitInfo = () => {
   if (cachedGitInfo) return cachedGitInfo
+  const fullRepoPath = execSync("git rev-parse --show-toplevel", { stdio: "pipe" }).toString().trim();
+  const projectName = path.basename(fullRepoPath);
   const dayjs = require('dayjs')
   const commitHash = execSync('git rev-parse --short=8 HEAD').toString().trim()
   const fullCommitId = execSync('git rev-parse HEAD').toString().trim()
@@ -30,26 +32,11 @@ const getGitInfo = () => {
     "fullCommitId": "${fullCommitId}",
     "branchName": "${branchName}",
     "timestamp": "${dayjs().format('YYYY-MM-DD HH:mm:ss')}",
-    "projectName": "${getProjectName()}",
-    "coverageKey": "${handleProjectName(getProjectName())}"
+    "projectName": "${projectName}",
+    "coverageKey": "${handleProjectName(projectName)}"
   }`
 
   return cachedGitInfo
-}
-
-
-/**
- * 获取主项目的名称
- * @returns {string} 项目名称
- */
-const getProjectName = () => {
-  try {
-    const topLevelPath = execSync('git rev-parse --show-toplevel', { stdio: 'pipe' }).toString().trim()
-    return path.basename(topLevelPath)
-  } catch (error) {
-    console.error('[jt-coverage] 获取项目名称失败:', error.message) // 添加模块前缀方便调试
-    return '未知项目'
-  }
 }
 
 const getVueConfig = (config) => {
@@ -78,7 +65,7 @@ const getBabelConfig = (options = {}) => {
  * 处理项目名称
  */
 const handleProjectName = (projectName) => {
-  return projectName.replace(/-/g, '_');
+  return `__${projectName.replace(/-/g, "_")}__`;
 }
 
 /**
@@ -95,16 +82,18 @@ const setupCoverage = (config, options = {}) => {
     throw new Error('[jt-coverage] config参数不能为空')
   }
   getGitInfo()
+  const cachedGitInfoData = JSON.parse(cachedGitInfo);
   if (options.coverageVariable) {
-    cachedGitInfo.projectName = options.coverageVariable
-    cachedGitInfo.coverageKey = handleProjectName(options.coverageVariable)
+    cachedGitInfoData.projectName = options.coverageVariable;
+    cachedGitInfoData.coverageKey = handleProjectName(options.coverageVariable);
   }
+  cachedGitInfo = JSON.stringify(cachedGitInfoData);
   // 应用Vue配置
   getVueConfig(config)
 
 
   // 获取Babel配置
-  const babelConfig = getBabelConfig({ ...options, coverageVariable: cachedGitInfo.coverageKey })
+  const babelConfig = getBabelConfig({ ...options, coverageVariable: cachedGitInfoData.coverageKey  })
   // - 替换_
 
   // 如果选项中指定了自动应用Babel配置（默认为true）
@@ -128,12 +117,6 @@ const setupCoverage = (config, options = {}) => {
   return config
 }
 
-// 同时支持 Vue 2 和 Vue 3 的安装方式
-
-// 添加 Vue 2 安装方法
-CoverageButton.install = function(Vue) {
-  Vue.component(CoverageButton.name, CoverageButton)
-}
 module.exports = {
   getVueConfig,
   getBabelConfig,

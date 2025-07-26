@@ -1,6 +1,6 @@
 {
   "name": "jt-coverage",
-  "version": "0.0.11beta",
+  "version": "0.0.17beta",
   "description": "A wrapper for coverage-source-map-trace-plugin, babel-plugin-istanbul and nyc.",
   "main": "dist/jt-coverage.cjs.js",
   "type": "commonjs",
