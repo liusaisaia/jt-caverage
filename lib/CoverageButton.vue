@@ -81,7 +81,8 @@ export default {
         country: this.country,
         // 项目
         intervalMilliseconds: this.pollingInterval, // 轮询间隔时间，单位毫秒
-        branch: this.branch // 分支信息
+        branch: this.branch, // 分支信息
+        selfObj: this
       }) // 设置 window.saveCoverage
     }
   },

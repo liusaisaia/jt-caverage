@@ -1,6 +1,6 @@
 {
   "name": "jt-coverage",
-  "version": "0.0.17beta",
+  "version": "0.0.25beta",
   "description": "A wrapper for coverage-source-map-trace-plugin, babel-plugin-istanbul and nyc.",
   "main": "dist/jt-coverage.cjs.js",
   "type": "commonjs",
@@ -21,7 +21,7 @@
   "peerDependencies": {
     "babel-plugin-istanbul": "^6.0.0",
     "coverage-source-map-trace-plugin": "^1.0.0",
-    "dayjs": "^1.10.0",
+    "dayjs": ">=1.7.0",
     "vue": "^2.6.0 || ^3.0.0",
     "element-ui": "^2.10.1"
   },
@@ -33,5 +33,26 @@
   "dependencies": {
     "@vitejs/plugin-vue2": "1.1.2"
   },
-  "files": ["dist", "lib"]
+  "files": ["dist", "lib"],
+  "nyc": {
+    "include": [
+      "src/**/*.{js,vue}"
+    ],
+    "exclude": [
+      "**/*.spec.js",
+      "node_modules/"
+    ],
+    "extension": [
+      ".js",
+      ".vue"
+    ],
+    "reporter": [
+      "lcov",
+      "text",
+      "text-summary"
+    ],
+    "all": true,
+    "sourceMap": true,
+    "instrument": true
+  }
 }
