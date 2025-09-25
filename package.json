@@ -22,8 +22,7 @@
     "babel-plugin-istanbul": "^6.0.0",
     "coverage-source-map-trace-plugin": "^1.0.0",
     "dayjs": ">=1.7.0",
-    "vue": "^2.6.0 || ^3.0.0",
-    "element-ui": "^2.10.1"
+    "vue": "^2.6.0 || ^3.0.0"
   },
   "devDependencies": {
     "vite": "^2.9.0",

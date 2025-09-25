@@ -9,7 +9,8 @@
     >
       <!-- 图标部分 -->
       <div class="btn-icon">
-        <i :class="coverage ? 'el-icon-video-pause' : 'el-icon-data-analysis'"></i>
+        <span v-if="coverage" class="coverage-icon coverage-pause">⏸</span>
+        <span v-else class="coverage-icon coverage-analysis">📊</span>
       </div>
 
       <!-- 状态指示器 -->
@@ -20,6 +21,7 @@
 
 <script>
 import { startCoveragePolling, stopCoveragePolling, collectFinalCoverage } from './devCoverage'
+import { $confirm } from './native-confirm.js'
 
 export default {
   name: 'CoverageButton',
@@ -58,7 +60,7 @@ export default {
   },
   methods: {
     handleClose() {
-      this.$confirm(`是否${this.coverage ? '关闭覆盖率' : '开启任务并刷新页面'}?`, '提示', {
+      $confirm(`是否${this.coverage ? '关闭覆盖率' : '开启任务并刷新页面'}?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -235,5 +237,21 @@ export default {
   .coverage-edge-btn.active .btn-label {
     color: #ff6b6b;
   }
+}
+
+/* 原生图标样式 */
+.coverage-icon {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.coverage-pause {
+  font-weight: bold;
+}
+
+.coverage-analysis {
+  font-size: 12px;
 }
 </style>

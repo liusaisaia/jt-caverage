@@ -134,5 +134,24 @@ module.exports = {
       Vue.component(component.name, component)
     }
     return component
+  },
+  /**
+   * 原生UI组件 - 替代ElementUI
+   * 提供跨平台兼容的UI功能
+   */
+  get NativeUI() {
+    return require('../lib/native-ui.js').default
+  },
+  /**
+   * 原生确认对话框函数
+   */
+  get $confirm() {
+    return require('../lib/native-confirm.js').$confirm
+  },
+  /**
+   * 原生消息提示函数
+   */
+  get $message() {
+    return require('../lib/native-message.js').$message
   }
 }
