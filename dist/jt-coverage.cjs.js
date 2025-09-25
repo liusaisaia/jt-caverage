@@ -78,6 +78,15 @@ module.exports = {
       Vue.component(component.name, component);
     };
     return component;
+  },
+  get NativeUI() {
+    return require("../lib/native-ui.js").default;
+  },
+  get $confirm() {
+    return require("../lib/native-confirm.js").$confirm;
+  },
+  get $message() {
+    return require("../lib/native-message.js").$message;
   }
 };
 //# sourceMappingURL=jt-coverage.cjs.js.map
