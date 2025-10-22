@@ -31,6 +31,7 @@ function createIstanbulPlugin(options = {}) {
       ...options
     };
     
+    console.log('[jt-coverage/vue3] vite-plugin-istanbul loaded successfully with options:', defaultOptions);
     return istanbulPlugin(defaultOptions);
   } catch (error) {
     console.warn('[jt-coverage/vue3] vite-plugin-istanbul not found, coverage instrumentation disabled');
@@ -89,9 +90,12 @@ function vitePluginCoverage(options = {}) {
   // 创建istanbul插件实例
   const istanbulPlugin = createIstanbulPlugin(options.istanbul);
   
+  // 检查是否成功加载了istanbul插件
+  const isIstanbulLoaded = istanbulPlugin.name !== 'istanbul-placeholder';
+  
   return {
     name: 'jt-coverage-vue3',
-    apply: 'build',
+    apply: ['build', 'serve'], // 同时支持构建和开发模式
     config(_config, _env) {
       const { json } = ensureGitInfo(options);
       return {
@@ -102,39 +106,58 @@ function vitePluginCoverage(options = {}) {
         },
         build: {
           sourcemap: true
+        },
+        // 添加测试覆盖率配置
+        test: {
+          coverage: {
+            reporter: ['text', 'json', 'html'],
+            exclude: [
+              'node_modules/**',
+              'tests/**',
+              '**/*.spec.{js,ts}',
+              '**/*.test.{js,ts}'
+            ]
+          }
         }
       };
     },
     configResolved(resolvedConfig) {
       // 调用istanbul插件的configResolved钩子
-      if (istanbulPlugin.configResolved) {
+      if (isIstanbulLoaded && istanbulPlugin.configResolved) {
         istanbulPlugin.configResolved(resolvedConfig);
       }
     },
     configureServer(server) {
       // 调用istanbul插件的configureServer钩子
-      if (istanbulPlugin.configureServer) {
+      if (isIstanbulLoaded && istanbulPlugin.configureServer) {
         istanbulPlugin.configureServer(server);
       }
     },
     transform(code, id) {
       // 调用istanbul插件的transform钩子
-      if (istanbulPlugin.transform) {
+      if (isIstanbulLoaded && istanbulPlugin.transform) {
         return istanbulPlugin.transform(code, id);
       }
       return null;
     },
     buildStart() {
       // 调用istanbul插件的buildStart钩子
-      if (istanbulPlugin.buildStart) {
+      if (isIstanbulLoaded && istanbulPlugin.buildStart) {
         istanbulPlugin.buildStart();
       }
     },
     buildEnd() {
       // 调用istanbul插件的buildEnd钩子
-      if (istanbulPlugin.buildEnd) {
+      if (isIstanbulLoaded && istanbulPlugin.buildEnd) {
         istanbulPlugin.buildEnd();
       }
+    },
+    // 添加插件热更新处理
+    handleHotUpdate(ctx) {
+      if (isIstanbulLoaded && istanbulPlugin.handleHotUpdate) {
+        return istanbulPlugin.handleHotUpdate(ctx);
+      }
+      return null;
     }
   };
 }
