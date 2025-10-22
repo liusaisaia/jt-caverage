@@ -1,13 +1,17 @@
 {
   "name": "jt-coverage",
-  "version": "0.0.28Beta1",
+  "version": "0.0.28Beta71",
   "description": "A wrapper for coverage-source-map-trace-plugin, babel-plugin-istanbul and nyc.",
   "main": "dist/jt-coverage.cjs.js",
   "type": "commonjs",
+  "workspaces": ["packages/core", "packages/vue2"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pub:c": "npm publish --registry=https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/",
-    "build": "vite build"
+    "build": "vite build",
+    "pub:core": "npm publish --workspace @jt-coverage/core --registry=https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/ --access=public",
+    "pub:vue2": "npm publish --workspace @jt-coverage/vue2 --registry=https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/ --access=public",
+    "pub:vue3": "npm publish --workspace @jt-coverage/vue3 --registry=https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/ --access=public"
   },
   "keywords": [
     "coverage",
