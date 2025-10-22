@@ -82,22 +82,40 @@ function setupCoverageWebpack(config, options = {}) {
 }
 
 /**
- * Vue3（Vite）增强版插件：注入 define、开启 sourcemap 并集成 istanbul 覆盖率
+ * Vue3（Vite）增强版插件：直接集成vite-plugin-istanbul
  * @param {Object} options - 插件配置选项
  * @returns {Object} Vite插件实例
  */
 function vitePluginCoverage(options = {}) {
-  // 创建istanbul插件实例
-  const istanbulPlugin = createIstanbulPlugin(options.istanbul);
+  // 合并默认配置
+  const istanbulOptions = {
+    include: ['src/**/*.{js,ts,vue}'],
+    exclude: ['node_modules/**', 'tests/**', '**/*.spec.{js,ts}', '**/*.test.{js,ts}'],
+    forceBuildInstrument: true,
+    ...options.istanbul
+  };
+
+  // 尝试直接导入vite-plugin-istanbul
+  let istanbulPlugin;
+  let isIstanbulLoaded = false;
   
-  // 检查是否成功加载了istanbul插件
-  const isIstanbulLoaded = istanbulPlugin.name !== 'istanbul-placeholder';
+  try {
+    istanbulPlugin = require('vite-plugin-istanbul');
+    isIstanbulLoaded = true;
+    console.log('[jt-coverage/vue3] vite-plugin-istanbul loaded successfully');
+  } catch (error) {
+    console.warn('[jt-coverage/vue3] vite-plugin-istanbul not found, coverage instrumentation disabled');
+    console.error('[jt-coverage/vue3] Error details:', error.message);
+  }
   
-  return {
+  // 获取Git信息
+  const { json } = ensureGitInfo(options);
+  
+  // 基础插件配置
+  const basePlugin = {
     name: 'jt-coverage-vue3',
     apply: ['build', 'serve'], // 同时支持构建和开发模式
     config(_config, _env) {
-      const { json } = ensureGitInfo(options);
       return {
         define: {
           'process.env': {
@@ -110,56 +128,43 @@ function vitePluginCoverage(options = {}) {
         // 添加测试覆盖率配置
         test: {
           coverage: {
+            provider: 'istanbul',
             reporter: ['text', 'json', 'html'],
             exclude: [
               'node_modules/**',
               'tests/**',
               '**/*.spec.{js,ts}',
               '**/*.test.{js,ts}'
-            ]
+            ],
+            ...options.coverage
           }
         }
       };
-    },
-    configResolved(resolvedConfig) {
-      // 调用istanbul插件的configResolved钩子
-      if (isIstanbulLoaded && istanbulPlugin.configResolved) {
-        istanbulPlugin.configResolved(resolvedConfig);
-      }
-    },
-    configureServer(server) {
-      // 调用istanbul插件的configureServer钩子
-      if (isIstanbulLoaded && istanbulPlugin.configureServer) {
-        istanbulPlugin.configureServer(server);
-      }
-    },
-    transform(code, id) {
-      // 调用istanbul插件的transform钩子
-      if (isIstanbulLoaded && istanbulPlugin.transform) {
-        return istanbulPlugin.transform(code, id);
-      }
-      return null;
-    },
-    buildStart() {
-      // 调用istanbul插件的buildStart钩子
-      if (isIstanbulLoaded && istanbulPlugin.buildStart) {
-        istanbulPlugin.buildStart();
-      }
-    },
-    buildEnd() {
-      // 调用istanbul插件的buildEnd钩子
-      if (isIstanbulLoaded && istanbulPlugin.buildEnd) {
-        istanbulPlugin.buildEnd();
-      }
-    },
-    // 添加插件热更新处理
-    handleHotUpdate(ctx) {
-      if (isIstanbulLoaded && istanbulPlugin.handleHotUpdate) {
-        return istanbulPlugin.handleHotUpdate(ctx);
-      }
-      return null;
     }
   };
+  
+  // 如果成功加载了istanbul插件，则直接使用它
+  if (isIstanbulLoaded) {
+    // 创建istanbul插件实例
+    const istanbulInstance = istanbulPlugin(istanbulOptions);
+    
+    // 返回合并后的插件，优先使用istanbul插件的方法
+    return {
+      ...basePlugin,
+      ...istanbulInstance,
+      // 确保我们的config方法不被覆盖
+      config: basePlugin.config,
+      // 如果istanbul插件有这些方法，则使用它们
+      configResolved: istanbulInstance.configResolved || (() => {}),
+      configureServer: istanbulInstance.configureServer || (() => {}),
+      buildStart: istanbulInstance.buildStart || (() => {}),
+      buildEnd: istanbulInstance.buildEnd || (() => {}),
+      handleHotUpdate: istanbulInstance.handleHotUpdate || (() => {})
+    };
+  }
+  
+  // 如果没有加载istanbul插件，则返回基础插件
+  return basePlugin;
 }
 
 module.exports = {

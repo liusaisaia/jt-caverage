@@ -1,6 +1,6 @@
 {
   "name": "@jt-coverage/vue3",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Vue3 adapter for jt-coverage. Supports webpack-chain (Vue CLI 5) and a minimal Vite plugin.",
   "main": "index.js",
   "types": "index.d.ts",
@@ -36,8 +36,7 @@
     }
   },
   "dependencies": {
-    "@jt-coverage/core": "0.0.1",
-    "vite-plugin-istanbul": "^4.1.0"
+    "@jt-coverage/core": "0.0.1"
   },
   "publishConfig": {
     "registry": "https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/",

@@ -1,24 +1,81 @@
-# Vue3 覆盖率包使用说明
+# @jt-coverage/vue3 使用指南
 
-## 概述
+## 简介
 
-`@jt-coverage/vue3` 是专为 Vue3 项目设计的代码覆盖率收集工具包，支持基于 Vue CLI 5/webpack-chain 的项目以及 Vite 项目。
+@jt-coverage/vue3 是一个专为 Vue 3 项目设计的代码覆盖率工具，支持 Vite 和 webpack-chain（Vue CLI 5）构建工具。
 
 ## 安装
 
 ```bash
-npm install @jt-coverage/vue3 --save-dev
+npm install @jt-coverage/vue3 vite-plugin-istanbul --save-dev
 ```
 
-如果你使用 Vite 并希望获得完整的覆盖率功能，还需要安装 `vite-plugin-istanbul`：
+## Vite 配置
 
-```bash
-npm install vite-plugin-istanbul --save-dev
+### 基本用法
+
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite';
+import { vitePluginCoverage } from '@jt-coverage/vue3';
+
+export default defineConfig({
+  plugins: [
+    vitePluginCoverage({
+      istanbul: {
+        include: ['src/**/*.{js,ts,vue}'],
+        exclude: ['node_modules/**', 'tests/**'],
+        forceBuildInstrument: true
+      },
+      coverage: {
+        provider: 'istanbul',
+        reporter: ['text', 'json', 'html'],
+        exclude: [
+          'node_modules/**',
+          'tests/**',
+          '**/*.spec.{js,ts}',
+          '**/*.test.{js,ts}'
+        ]
+      }
+    })
+  ]
+});
 ```
 
-## 使用方法
+### 与 Vitest 集成
 
-### 1. Vue CLI 5 / webpack-chain 项目
+```javascript
+// vite.config.js
+import { defineConfig } from 'vitest/config';
+import { vitePluginCoverage } from '@jt-coverage/vue3';
+
+export default defineConfig({
+  plugins: [
+    vitePluginCoverage({
+      istanbul: {
+        include: ['src/**/*.{js,ts,vue}'],
+        exclude: ['node_modules/**', 'tests/**'],
+        forceBuildInstrument: true
+      }
+    })
+  ],
+  test: {
+    environment: 'happy-dom',
+    coverage: {
+      provider: 'istanbul',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/**',
+        'tests/**',
+        '**/*.spec.{js,ts}',
+        '**/*.test.{js,ts}'
+      ]
+    }
+  }
+});
+```
+
+## webpack-chain（Vue CLI 5）配置
 
 ```javascript
 // vue.config.js
@@ -27,116 +84,72 @@ const { setupCoverageWebpack } = require('@jt-coverage/vue3');
 module.exports = {
   configureWebpack: (config) => {
     return setupCoverageWebpack(config, {
-      // 可选配置
-      coverageVariable: 'my-project',
-      applyBabel: true // 是否应用 babel-plugin-istanbul
+      coverageVariable: 'my-project'
     });
   }
 };
 ```
 
-### 2. Vite 项目
+## 运行测试并生成覆盖率报告
 
-```javascript
-// vite.config.js
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
-import { vitePluginCoverage } from '@jt-coverage/vue3';
+```bash
+# 使用 Vitest
+npx vitest run --coverage
 
-export default defineConfig({
-  plugins: [
-    vue(),
-    vitePluginCoverage({
-      // 可选配置
-      coverageVariable: 'my-project',
-      istanbul: {
-        // vite-plugin-istanbul 配置
-        include: ['src/**/*.{js,ts,vue}'],
-        exclude: ['node_modules/**', 'tests/**', '**/*.spec.{js,ts}', '**/*.test.{js,ts}'],
-        forceBuildInstrument: true
-      }
-    })
-  ]
-});
+# 使用 Jest
+npx jest --coverage
 ```
 
 ## 配置选项
 
-### setupCoverageWebpack
+### vitePluginCoverage 选项
 
-- `coverageVariable`: 覆盖率变量名，用于区分不同项目的覆盖率数据
-- `applyBabel`: 是否应用 babel-plugin-istanbul，默认为 true
+| 选项 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| istanbul | object | 见下文 | vite-plugin-istanbul 的配置选项 |
+| coverage | object | 见下文 | 覆盖率报告的配置选项 |
 
-### vitePluginCoverage
+### istanbul 选项
 
-- `coverageVariable`: 覆盖率变量名，用于区分不同项目的覆盖率数据
-- `istanbul`: vite-plugin-istanbul 的配置选项
-  - `include`: 需要收集覆盖率的文件路径模式
-  - `exclude`: 不需要收集覆盖率的文件路径模式
-  - `forceBuildInstrument`: 强制在构建时启用覆盖率检测
+| 选项 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| include | array | ['src/**/*.{js,ts,vue}'] | 包含的文件模式 |
+| exclude | array | ['node_modules/**', 'tests/**', '**/*.spec.{js,ts}', '**/*.test.{js,ts}'] | 排除的文件模式 |
+| forceBuildInstrument | boolean | true | 强制在构建时插桩 |
 
-## 组件
+### coverage 选项
 
-### CoverageButton
-
-覆盖率显示组件，可以在你的应用中显示覆盖率信息。
-
-```javascript
-import { CoverageButton } from '@jt-coverage/vue3';
-
-// 在组件中使用
-export default {
-  components: {
-    CoverageButton
-  }
-}
-```
-
-### NativeUI
-
-原生UI组件集合。
-
-```javascript
-import { NativeUI } from '@jt-coverage/vue3';
-```
-
-### 工具函数
-
-- `$confirm`: 确认对话框
-- `$message`: 消息提示
-
-```javascript
-import { $confirm, $message } from '@jt-coverage/vue3';
-
-// 使用示例
-$confirm('确定要执行此操作吗？').then(() => {
-  // 确认后的操作
-});
-
-$message('操作成功', 'success');
-```
-
-## 注意事项
-
-1. 如果未安装 `vite-plugin-istanbul`，Vite 插件将仅提供基本的 define 和 sourcemap 功能，不会进行覆盖率检测。
-
-2. 覆盖率数据会在构建过程中收集，并存储在全局变量 `window.__coverage__` 中。
-
-3. 确保在测试环境中启用覆盖率收集，在生产环境中禁用以提高性能。
+| 选项 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| provider | string | 'istanbul' | 覆盖率提供者 |
+| reporter | array | ['text', 'json', 'html'] | 报告格式 |
+| exclude | array | 见上表 | 排除的文件模式 |
 
 ## 故障排除
 
-### 覆盖率数据为空
+### 1. 插件未找到错误
 
-1. 确认已安装 `vite-plugin-istanbul`
-2. 检查 `include` 和 `exclude` 配置是否正确
-3. 确保源文件路径匹配配置的模式
+确保已安装 vite-plugin-istanbul：
 
-### 构建错误
+```bash
+npm install vite-plugin-istanbul --save-dev
+```
 
-1. 检查 `vite-plugin-istanbul` 版本是否与 Vite 版本兼容
-2. 尝试更新到最新版本的依赖
+### 2. 覆盖率数据不准确
+
+检查以下配置：
+- 确保 `forceBuildInstrument: true`
+- 确保包含所有需要收集覆盖率的文件
+- 确保测试环境配置正确
+
+### 3. 覆盖率报告未生成
+
+确保运行测试时添加了 `--coverage` 参数：
+
+```bash
+npx vitest run --coverage
+```
 
 ## 示例项目
 
-参考项目中的 `examples` 目录，查看完整的使用示例。
+查看 `examples/` 目录中的示例项目，了解如何在不同场景下使用 @jt-coverage/vue3。
