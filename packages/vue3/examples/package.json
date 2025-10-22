@@ -1,0 +1,23 @@
+{
+  "name": "vue3-coverage-example",
+  "version": "1.0.0",
+  "description": "Vue3 覆盖率包使用示例",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest",
+    "coverage": "vitest run --coverage --reporter=verbose"
+  },
+  "dependencies": {
+    "vue": "^3.2.45"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.0.0",
+    "@jt-coverage/vue3": "file:../",
+    "vite": "^4.0.0",
+    "vite-plugin-istanbul": "^4.0.1",
+    "vitest": "^0.32.0",
+    "jsdom": "^21.0.0",
+    "@vitest/coverage-v8": "^0.32.0"
+  }
+}

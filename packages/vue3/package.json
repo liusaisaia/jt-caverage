@@ -1,0 +1,49 @@
+{
+  "name": "@jt-coverage/vue3",
+  "version": "0.0.5",
+  "description": "Vue3 adapter for jt-coverage. Supports webpack-chain (Vue CLI 5) and a minimal Vite plugin.",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "type": "commonjs",
+  "license": "MIT",
+  "keywords": [
+    "coverage",
+    "istanbul",
+    "vue3",
+    "vite",
+    "webpack-chain"
+  ],
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "lib/**/*"
+  ],
+  "peerDependencies": {
+    "vue": "^3.0.0",
+    "dayjs": ">=1.7.0",
+    "vite": ">=2.0.0",
+    "vite-plugin-istanbul": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "vite-plugin-istanbul": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@jt-coverage/core": "0.0.1",
+    "vite-plugin-istanbul": "^4.1.0"
+  },
+  "publishConfig": {
+    "registry": "https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "echo @jt-coverage/vue3 build OK"
+  }
+}
