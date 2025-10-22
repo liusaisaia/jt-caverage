@@ -10,6 +10,16 @@
 npm install @jt-coverage/vue3 vite-plugin-istanbul --save-dev
 ```
 
+注意：请确保安装的vite-plugin-istanbul版本为3.x或4.x，以获得最佳兼容性。如果遇到导入问题，可以尝试指定特定版本：
+
+```bash
+# 安装v3版本（推荐）
+npm install vite-plugin-istanbul@^3.0.0 --save-dev
+
+# 或安装v4版本
+npm install vite-plugin-istanbul@^4.0.0 --save-dev
+```
+
 ## Vite 配置
 
 ### 基本用法
@@ -134,6 +144,25 @@ npx jest --coverage
 ```bash
 npm install vite-plugin-istanbul --save-dev
 ```
+
+如果遇到"No 'exports' main defined"错误，这通常是由于vite-plugin-istanbul版本不兼容导致的。请尝试以下解决方案：
+
+1. 安装特定版本：
+   ```bash
+   # 安装v3版本（推荐）
+   npm install vite-plugin-istanbul@^3.0.0 --save-dev
+   ```
+
+2. 如果使用pnpm，可能需要明确指定依赖：
+   ```bash
+   pnpm add vite-plugin-istanbul@^3.0.0 -D
+   ```
+
+3. 清理并重新安装依赖：
+   ```bash
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
 
 ### 2. 覆盖率数据不准确
 

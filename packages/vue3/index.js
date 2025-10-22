@@ -22,7 +22,7 @@ function createIstanbulPlugin(options = {}) {
   try {
     // 尝试动态导入vite-plugin-istanbul
     const istanbulPlugin = require('vite-plugin-istanbul');
-    
+
     // 默认配置
     const defaultOptions = {
       include: ['src/**/*.{js,ts,vue}'],
@@ -30,7 +30,7 @@ function createIstanbulPlugin(options = {}) {
       forceBuildInstrument: true,
       ...options
     };
-    
+
     console.log('[jt-coverage/vue3] vite-plugin-istanbul loaded successfully with options:', defaultOptions);
     return istanbulPlugin(defaultOptions);
   } catch (error) {
@@ -98,19 +98,27 @@ function vitePluginCoverage(options = {}) {
   // 尝试直接导入vite-plugin-istanbul
   let istanbulPlugin;
   let isIstanbulLoaded = false;
-  
+
   try {
-    istanbulPlugin = require('vite-plugin-istanbul');
+    // 尝试多种导入方式以兼容不同版本的vite-plugin-istanbul
+    try {
+      istanbulPlugin = require('vite-plugin-istanbul');
+    } catch (e) {
+      // 如果默认导入失败，尝试从dist目录导入
+      istanbulPlugin = require('vite-plugin-istanbul/dist/index.js');
+    }
+
     isIstanbulLoaded = true;
     console.log('[jt-coverage/vue3] vite-plugin-istanbul loaded successfully');
   } catch (error) {
     console.warn('[jt-coverage/vue3] vite-plugin-istanbul not found, coverage instrumentation disabled');
     console.error('[jt-coverage/vue3] Error details:', error.message);
+    console.info('[jt-coverage/vue3] Please install vite-plugin-istanbul: npm install vite-plugin-istanbul --save-dev');
   }
-  
+
   // 获取Git信息
   const { json } = ensureGitInfo(options);
-  
+
   // 基础插件配置
   const basePlugin = {
     name: 'jt-coverage-vue3',
@@ -142,12 +150,12 @@ function vitePluginCoverage(options = {}) {
       };
     }
   };
-  
+
   // 如果成功加载了istanbul插件，则直接使用它
   if (isIstanbulLoaded) {
     // 创建istanbul插件实例
     const istanbulInstance = istanbulPlugin(istanbulOptions);
-    
+
     // 返回合并后的插件，优先使用istanbul插件的方法
     return {
       ...basePlugin,
@@ -162,7 +170,7 @@ function vitePluginCoverage(options = {}) {
       handleHotUpdate: istanbulInstance.handleHotUpdate || (() => {})
     };
   }
-  
+
   // 如果没有加载istanbul插件，则返回基础插件
   return basePlugin;
 }
