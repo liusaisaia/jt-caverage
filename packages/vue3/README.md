@@ -10,7 +10,7 @@
 npm install @jt-coverage/vue3 vite-plugin-istanbul --save-dev
 ```
 
-注意：请确保安装的vite-plugin-istanbul版本为3.x或4.x，以获得最佳兼容性。如果遇到导入问题，可以尝试指定特定版本：
+注意：请确保安装的vite-plugin-istanbul版本为3.x、4.x或7.x，以获得最佳兼容性。如果遇到导入问题，可以尝试指定特定版本：
 
 ```bash
 # 安装v3版本（推荐）
@@ -18,6 +18,9 @@ npm install vite-plugin-istanbul@^3.0.0 --save-dev
 
 # 或安装v4版本
 npm install vite-plugin-istanbul@^4.0.0 --save-dev
+
+# 或安装v7版本
+npm install vite-plugin-istanbul@^7.0.0 --save-dev
 ```
 
 ## Vite 配置
@@ -151,6 +154,12 @@ npm install vite-plugin-istanbul --save-dev
    ```bash
    # 安装v3版本（推荐）
    npm install vite-plugin-istanbul@^3.0.0 --save-dev
+   
+   # 或安装v4版本
+   npm install vite-plugin-istanbul@^4.0.0 --save-dev
+   
+   # 或安装v7版本
+   npm install vite-plugin-istanbul@^7.0.0 --save-dev
    ```
 
 2. 如果使用pnpm，可能需要明确指定依赖：

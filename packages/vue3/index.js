@@ -105,7 +105,17 @@ function vitePluginCoverage(options = {}) {
       istanbulPlugin = require('vite-plugin-istanbul');
     } catch (e) {
       // 如果默认导入失败，尝试从dist目录导入
-      istanbulPlugin = require('vite-plugin-istanbul/dist/index.js');
+      try {
+        istanbulPlugin = require('vite-plugin-istanbul/dist/index.js');
+      } catch (e2) {
+        // 对于7.x版本，尝试ESM导入方式
+        try {
+          const istanbulModule = eval('require')('vite-plugin-istanbul');
+          istanbulPlugin = istanbulModule.default || istanbulModule;
+        } catch (e3) {
+          throw new Error('Failed to import vite-plugin-istanbul with all available methods');
+        }
+      }
     }
 
     isIstanbulLoaded = true;
@@ -114,6 +124,7 @@ function vitePluginCoverage(options = {}) {
     console.warn('[jt-coverage/vue3] vite-plugin-istanbul not found, coverage instrumentation disabled');
     console.error('[jt-coverage/vue3] Error details:', error.message);
     console.info('[jt-coverage/vue3] Please install vite-plugin-istanbul: npm install vite-plugin-istanbul --save-dev');
+    console.info('[jt-coverage/vue3] Supported versions: ^3.0.0, ^4.0.0, ^7.0.0');
   }
 
   // 获取Git信息
