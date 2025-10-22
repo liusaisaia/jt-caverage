@@ -102,20 +102,61 @@ function vitePluginCoverage(options = {}) {
   try {
     // 尝试多种导入方式以兼容不同版本的vite-plugin-istanbul
     try {
+      // 尝试标准require导入
       istanbulPlugin = require('vite-plugin-istanbul');
+      console.log('[jt-coverage/vue3] Loaded vite-plugin-istanbul via standard require');
     } catch (e) {
+      console.log('[jt-coverage/vue3] Standard require failed, trying alternative methods');
+      
       // 如果默认导入失败，尝试从dist目录导入
       try {
         istanbulPlugin = require('vite-plugin-istanbul/dist/index.js');
+        console.log('[jt-coverage/vue3] Loaded vite-plugin-istanbul via dist/index.js');
       } catch (e2) {
+        console.log('[jt-coverage/vue3] dist/index.js failed, trying ESM import');
+        
         // 对于7.x版本，尝试ESM导入方式
         try {
-          const istanbulModule = eval('require')('vite-plugin-istanbul');
-          istanbulPlugin = istanbulModule.default || istanbulModule;
+          // 尝试使用动态import
+          const modulePath = require.resolve('vite-plugin-istanbul');
+          const fs = require('fs');
+          const packagePath = require.resolve('vite-plugin-istanbul/package.json');
+          const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+          
+          // 检查package.json中的exports或main字段
+          const entryPoint = packageJson.exports?.['.']?.import || 
+                           packageJson.exports?.['.']?.require || 
+                           packageJson.module || 
+                           packageJson.main;
+          
+          if (entryPoint) {
+            const fullPath = require.resolve('vite-plugin-istanbul/' + entryPoint);
+            delete require.cache[fullPath];
+            istanbulPlugin = require(fullPath);
+            console.log('[jt-coverage/vue3] Loaded vite-plugin-istanbul via package.json entry point:', entryPoint);
+          } else {
+            throw new Error('No entry point found in package.json');
+          }
         } catch (e3) {
-          throw new Error('Failed to import vite-plugin-istanbul with all available methods');
+          console.log('[jt-coverage/vue3] ESM import failed, trying direct module resolution');
+          
+          // 最后尝试直接解析模块
+          try {
+            const modulePath = require.resolve('vite-plugin-istanbul');
+            delete require.cache[modulePath];
+            const istanbulModule = require(modulePath);
+            istanbulPlugin = istanbulModule.default || istanbulModule;
+            console.log('[jt-coverage/vue3] Loaded vite-plugin-istanbul via direct module resolution');
+          } catch (e4) {
+            throw new Error(`Failed to import vite-plugin-istanbul with all available methods. Last error: ${e4.message}`);
+          }
         }
       }
+    }
+
+    // 验证插件是否为函数
+    if (typeof istanbulPlugin !== 'function') {
+      throw new Error('vite-plugin-istanbul is not a function');
     }
 
     isIstanbulLoaded = true;
@@ -125,6 +166,8 @@ function vitePluginCoverage(options = {}) {
     console.error('[jt-coverage/vue3] Error details:', error.message);
     console.info('[jt-coverage/vue3] Please install vite-plugin-istanbul: npm install vite-plugin-istanbul --save-dev');
     console.info('[jt-coverage/vue3] Supported versions: ^3.0.0, ^4.0.0, ^7.0.0');
+    console.info('[jt-coverage/vue3] If you are using version 7.x, try adding this to your vite.config.ts:');
+    console.info('[jt-coverage/vue3]   optimizeDeps: { exclude: [\'vite-plugin-istanbul\'] }');
   }
 
   // 获取Git信息

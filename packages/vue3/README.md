@@ -162,12 +162,22 @@ npm install vite-plugin-istanbul --save-dev
    npm install vite-plugin-istanbul@^7.0.0 --save-dev
    ```
 
-2. 如果使用pnpm，可能需要明确指定依赖：
-   ```bash
-   pnpm add vite-plugin-istanbul@^3.0.0 -D
-   ```
+2. 如果使用7.x版本，可能需要在vite.config.ts中添加以下配置：
+     ```typescript
+     export default defineConfig({
+       // ...其他配置
+       optimizeDeps: {
+         exclude: ['vite-plugin-istanbul']
+       }
+     });
+     ```
 
-3. 清理并重新安装依赖：
+  3. 如果使用pnpm，可能需要明确指定依赖：
+     ```bash
+     pnpm add vite-plugin-istanbul@^3.0.0 -D
+     ```
+
+   4. 清理并重新安装依赖：
    ```bash
    rm -rf node_modules package-lock.json
    npm install
