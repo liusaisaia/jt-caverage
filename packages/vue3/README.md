@@ -4,6 +4,18 @@
 
 @jt-coverage/vue3 是一个专为 Vue 3 项目设计的代码覆盖率工具，支持 Vite 和 webpack-chain（Vue CLI 5）构建工具。
 
+**🎉 新版本特性：** 我们重新封装了模块，提供更清晰、更可靠的接口，同时保持完全向后兼容！
+
+## 🚀 新封装特性
+
+- ✅ **外部导入** - 直接导入外部的 `vite-plugin-istanbul`，避免模块解析问题
+- ✅ **标准兼容** - 完全兼容 vite-plugin-istanbul 的 API
+- ✅ **错误处理** - 智能的错误捕获和降级机制
+- ✅ **Git 集成** - 自动获取和注入 Git 信息
+- ✅ **TypeScript** - 完整的 TypeScript 类型支持
+- ✅ **多框架** - 支持 Vue、Quasar 等框架
+- ✅ **向后兼容** - 保持与旧版本的兼容性
+
 ## 安装
 
 ```bash
@@ -23,9 +35,129 @@ npm install vite-plugin-istanbul@^4.0.0 --save-dev
 npm install vite-plugin-istanbul@^7.0.0 --save-dev
 ```
 
-## Vite 配置
+## 🆕 新封装用法（推荐）
 
-### 基本用法
+### 🎯 外部导入版本（最新优化）
+
+**重要更新：** 我们优化了实现，直接导入外部的 `vite-plugin-istanbul`，提供更稳定、更兼容的体验！
+
+**✨ 优势：**
+- 🎯 **直接导入** - 直接 `require('vite-plugin-istanbul')`，避免复杂的模块解析
+- 🔧 **零依赖冲突** - 不修改原始包结构，减少依赖冲突
+- ⚡ **性能优化** - 更简洁的实现，启动更快
+- 🛡️ **稳定性** - 利用 vite-plugin-istanbul 的原生功能
+
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { jtCoveragePlugin } from '@jt-coverage/vue3'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    jtCoveragePlugin({
+      include: 'src/*',
+      exclude: ['node_modules'],
+      extension: ['.js', '.ts', '.vue'],
+      requireEnv: false,
+      forceBuildInstrument: true
+    })
+  ]
+})
+```
+
+### 标准用法（最简单）
+
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { jtCoveragePlugin } from '@jt-coverage/vue3'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    jtCoveragePlugin({
+      include: 'src/*',
+      exclude: ['node_modules'],
+      extension: ['.js', '.ts', '.vue'],
+      requireEnv: false,
+      forceBuildInstrument: true
+    })
+  ]
+})
+```
+
+### 兼容标准 vite-plugin-istanbul
+
+```javascript
+// 与标准 vite-plugin-istanbul 完全相同的用法
+import istanbul from '@jt-coverage/vue3'
+
+export default {
+  plugins: [
+    vue(),
+    istanbul({
+      include: "src/*",
+      exclude: ["node_modules"],
+      extension: [".js", ".ts", ".vue"],
+      requireEnv: false,
+      forceBuildInstrument: true
+    })
+  ]
+}
+```
+
+### TypeScript 项目
+
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { jtCoveragePlugin, CoveragePluginOptions } from '@jt-coverage/vue3'
+
+const coverageOptions: CoveragePluginOptions = {
+  include: 'src/**/*',
+  exclude: ['node_modules/**', 'tests/**'],
+  extension: ['.js', '.ts', '.vue'],
+  requireEnv: false,
+  forceBuildInstrument: true,
+  coverageVariable: 'my-project'
+}
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    jtCoveragePlugin(coverageOptions)
+  ]
+})
+```
+
+### Quasar 框架
+
+```javascript
+// quasar.config.js
+const { createQuasarHelper } = require('@jt-coverage/vue3')
+
+const coverageHelper = createQuasarHelper({
+  include: 'src/**/*',
+  exclude: ['node_modules/**'],
+  extension: ['.js', '.ts', '.vue']
+})
+
+module.exports = function (ctx) {
+  return coverageHelper({
+    // ... 其他 Quasar 配置
+  })
+}
+```
+
+## 📖 传统用法（仍然支持）
+
+### Vite 配置
+
+#### 基本用法
 
 ```javascript
 // vite.config.js

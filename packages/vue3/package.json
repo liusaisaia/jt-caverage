@@ -1,9 +1,32 @@
 {
   "name": "@jt-coverage/vue3",
-  "version": "0.0.14",
+  "version": "0.0.23",
   "description": "Vue3 adapter for jt-coverage. Supports webpack-chain (Vue CLI 5) and a minimal Vite plugin.",
   "main": "index.js",
   "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./index": {
+      "import": "./index.js",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./lib/CoverageButton.vue": {
+      "import": "./lib/CoverageButton.vue",
+      "require": "./lib/CoverageButton.vue",
+      "types": "./lib/CoverageButton.vue"
+    },
+    "./lib/*": {
+      "import": "./lib/*.vue",
+      "require": "./lib/*.vue",
+      "types": "./lib/*.vue"
+    },
+    "./package.json": "./package.json"
+  },
   "type": "commonjs",
   "license": "MIT",
   "keywords": [
@@ -19,10 +42,10 @@
     "lib/**/*"
   ],
   "peerDependencies": {
-    "vue": "^3.0.0",
     "dayjs": ">=1.7.0",
     "vite": ">=2.0.0",
-    "vite-plugin-istanbul": "^3.0.0 || ^4.0.0 || ^7.0.0"
+    "vite-plugin-istanbul": "^3.0.0 || ^4.0.0 || ^7.0.0",
+    "vue": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "vue": {
@@ -44,5 +67,8 @@
   },
   "scripts": {
     "build": "echo @jt-coverage/vue3 build OK"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }
