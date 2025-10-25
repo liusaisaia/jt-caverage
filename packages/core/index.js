@@ -25,8 +25,6 @@ function handleProjectName(projectName) {
 function getGitInfo() {
   if (_cachedGitInfo) return _cachedGitInfo;
 
-  const dayjs = require('dayjs');
-
   // 仓库根与项目名
   const fullRepoPath = safeExec('git rev-parse --show-toplevel');
   const projectName = fullRepoPath ? path.basename(fullRepoPath) : path.basename(process.cwd());

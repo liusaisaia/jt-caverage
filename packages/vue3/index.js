@@ -1,4 +1,5 @@
 const { getGitInfo, handleProjectName } = require('@jt-coverage/core')
+const { writeFileSync: writeFileSync } = require('fs')
 
 let cachedGitInfo = null
 
@@ -17,10 +18,9 @@ function ensureGitInfo(options = {}) {
  * 创建vue3 覆盖插件包装 - 简化版，只使用 Istanbul
  * 从外部项目的 node_modules 中加载 vite-plugin-istanbul
  */
-async function createCoveragePlugin(options = {}) {
-  ensureGitInfo(options)
+async function createCoveragePlugin(options = {}, cb) {
   let istanbulPlugin
-
+  ensureGitInfo()
   try {
     // 使用动态导入来支持 ES 模块
     const module = await import('vite-plugin-istanbul')
@@ -36,6 +36,8 @@ async function createCoveragePlugin(options = {}) {
   if (typeof istanbul !== 'function') {
     throw new Error('vite-plugin-istanbul 导出格式不兼容，请检查版本。期望导出函数，实际得到: ' + typeof istanbul)
   }
+
+  writeFileSync('public/git-info.json', ensureGitInfo().json)
 
   return istanbul({
     ...options,

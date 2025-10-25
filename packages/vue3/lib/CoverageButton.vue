@@ -49,10 +49,13 @@ export default {
       isHovered: false
     }
   },
-  created() {
+  async created() {
     // 判断当前项目分支
     const branchStr = process?.env?.GIT_BRANCH
-    this.branch = branchStr ? JSON.parse(branchStr) : {}
+    const res = await fetch('/git-info.json').then(r => r.json())
+    this.branch = res
+    // 先删除 取默认字段名称
+    delete this.branch.coverageKey
     if (localStorage.getItem(`${this.branch.projectName}OpenCover`) === 'open') {
       this.startCoverage()
       this.coverage = true
@@ -86,7 +89,7 @@ export default {
         branch: this.branch, // 分支信息
         selfObj: this
       }) // 设置 window.saveCoverage
-    }
+    },
   },
   // 组件销毁停止轮询
   beforeDestroy() {
