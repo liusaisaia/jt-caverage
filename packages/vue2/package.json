@@ -1,6 +1,6 @@
 {
   "name": "@jt-coverage/vue2",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Vue2 adapter for jt-coverage. Inject webpack-chain and Babel Istanbul config.",
   "main": "index.js",
   "types": "index.d.ts",

@@ -97,7 +97,7 @@ export async function collectFinalCoverage() {
   }
 
   try {
-    const response = await fetch('https://10.99.72.87/api/coverage', {
+    const response = await fetch('https://demo-process-flow-inner.yunlu-tech.cn/vueCover/api/coverage', {
       method: 'POST',
       redirect: 'manual',
       headers: {

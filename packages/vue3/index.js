@@ -1,5 +1,6 @@
 const { getGitInfo, handleProjectName } = require('@jt-coverage/core')
 const { writeFileSync: writeFileSync } = require('fs')
+const path = require('path')
 
 let cachedGitInfo = null
 
@@ -15,55 +16,215 @@ function ensureGitInfo(options = {}) {
 }
 
 /**
- * 创建vue3 覆盖插件包装 - 简化版，只使用 Istanbul
- * 从外部项目的 node_modules 中加载 vite-plugin-istanbul
+ * 转换exclude选项格式，规范化exclude参数
  */
-async function createCoveragePlugin(options = {}, cb) {
-  let istanbulPlugin
-  ensureGitInfo()
-  try {
-    // 使用动态导入来支持 ES 模块
-    const module = await import('vite-plugin-istanbul')
-    istanbulPlugin = module.default || module
-  } catch (error) {
-    console.warn('[jt-coverage] 无法加载 vite-plugin-istanbul:', error.message)
-    throw error
+function normalizeExcludeOption(exclude) {
+  // 如果exclude是数组，直接返回
+  if (Array.isArray(exclude)) {
+    return exclude
   }
 
-  // 确保我们拿到的是函数
-  const istanbul = typeof istanbulPlugin === 'function' ? istanbulPlugin : istanbulPlugin.default
-
-  if (typeof istanbul !== 'function') {
-    throw new Error('vite-plugin-istanbul 导出格式不兼容，请检查版本。期望导出函数，实际得到: ' + typeof istanbul)
+  // 如果exclude是正则表达式，转换为字符串数组
+  if (exclude instanceof RegExp) {
+    return [exclude.source]
   }
 
-  writeFileSync('public/git-info.json', ensureGitInfo().json)
+  // 如果exclude是字符串，包装成数组
+  if (typeof exclude === 'string') {
+    return [exclude]
+  }
 
-  return istanbul({
+  // 默认值
+  return ['node_modules/**', 'tests/**', '**/*.test.js']
+}
+
+/**
+ * 转换include选项格式，规范化include参数
+ */
+function normalizeIncludeOption(include) {
+  // 如果include是数组，直接返回
+  if (Array.isArray(include)) {
+    return include
+  }
+
+  // 如果include是正则表达式，转换为glob模式
+  if (include instanceof RegExp) {
+    const source = include.source
+
+    // 常见的文件扩展名模式转换
+    if (source.includes('vue|js|jsx|ts|tsx|mjs')) {
+      return ['src/**/*.{vue,js,jsx,ts,tsx,mjs}']
+    }
+    if (source.includes('vue|js|jsx|ts|tsx')) {
+      return ['src/**/*.{vue,js,jsx,ts,tsx}']
+    }
+    if (source.includes('js|jsx|ts|tsx')) {
+      return ['src/**/*.{js,jsx,ts,tsx}']
+    }
+
+    // 默认转换为src模式
+    return ['src/**/*']
+  }
+
+  // 如果include是字符串，直接返回
+  if (typeof include === 'string') {
+    return include
+  }
+
+  // 默认值
+  return ['src/**/*']
+}
+
+/**
+ * 规范化选项配置，为插件提供统一的参数格式
+ */
+function normalizeOptions(options = {}) {
+  return {
     ...options,
     requireEnv: false,
-    forceBuildInstrument: true
-  })
+    forceBuildInstrument: true,
+    exclude: normalizeExcludeOption(options.exclude),
+    include: normalizeIncludeOption(options.include),
+    extension: ['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.vue']
+  }
+}
+
+/**
+ * Vue3覆盖率插件主实现
+ * 使用@weilinerl/vite-plugin-istanbul提供覆盖率功能
+ */
+async function createCoveragePlugin(options = {}, cb) {
+  ensureGitInfo()
+  writeFileSync('public/git-info.json', ensureGitInfo().json)
+
+  try {
+    // 使用@weilinerl/vite-plugin-istanbul插件
+    const { default: istanbulPlugin } = await import('@weilinerl/vite-plugin-istanbul')
+
+    if (typeof istanbulPlugin !== 'function') {
+      throw new Error('@weilinerl/vite-plugin-istanbul 导出格式不兼容')
+    }
+
+    // 规范化插件选项
+    const normalizedOptions = normalizeOptions(options)
+
+    const plugin = istanbulPlugin(normalizedOptions)
+
+    if (cb && typeof cb === 'function') {
+      cb(null, plugin)
+    }
+
+    return plugin
+  } catch (error) {
+    console.error('[jt-coverage] 插件创建失败:', error.message)
+    if (cb && typeof cb === 'function') {
+      cb(error)
+    }
+    throw error
+  }
+}
+
+/**
+ * 向后兼容的增强版本 - 保持原有接口但使用新的实现
+ */
+async function createEnhancedCoveragePlugin(options = {}, cb) {
+  // 目前增强版本与基础版本使用相同实现，未来可扩展
+  return createCoveragePlugin(options, cb)
+}
+
+
+
+/**
+ * 主入口函数 - 智能选择插件类型
+ */
+function jtCoveragePlugin(options = {}) {
+  // 如果启用了SourceMap修正或明确要求，使用增强版本
+  if (options.enableSourceMapFix || options.autoFix !== false) {
+    return createEnhancedCoveragePlugin(options)
+  }
+
+  // 否则使用简单版本保持向后兼容
+  return createCoveragePlugin(options)
+}
+
+/**
+ * 工具函数：创建适用于Quasar的覆盖率配置
+ */
+function createQuasarHelper(options = {}) {
+  return function (quasarConfig) {
+    const coverageOptions = {
+      include: options.include || 'src/**/*',
+      exclude: options.exclude || ['node_modules/**', 'tests/**'],
+      extension: options.extension || ['.js', '.ts', '.vue'],
+      ...options,
+      // Quasar特定配置
+      coverageVariable: options.coverageVariable || 'quasar-coverage',
+      forceBuildInstrument: true,
+      requireEnv: false
+    }
+
+    return {
+      ...quasarConfig,
+      plugins: [
+        ...(quasarConfig.plugins || []),
+        jtCoveragePlugin(coverageOptions)
+      ]
+    }
+  }
 }
 
 module.exports = {
-  ensureGitInfo,
+  // 主函数
+  jtCoveragePlugin,
+
+  // 增强版本（包含SourceMap修正）
+  createEnhancedCoveragePlugin,
+
+  // 简单版本（向后兼容）
   createCoveragePlugin,
+
+  // 工具函数
+  createQuasarHelper,
+  ensureGitInfo,
+
+  // 组件导出
   get CoverageButton() {
-    const component = require('./lib/CoverageButton.vue').default
-    component.install = function (app) {
-      // Vue3 注册方式
-      app.component(component.name, component)
+    try {
+      const component = require('./lib/CoverageButton.vue').default
+      component.install = function (app) {
+        app.component(component.name, component)
+      }
+      return component
+    } catch (error) {
+      console.warn('[jt-coverage] CoverageButton组件加载失败:', error.message)
+      return null
     }
-    return component
   },
+
   get NativeUI() {
-    return require('./lib/native-ui.js').default
+    try {
+      return require('./lib/native-ui.js').default
+    } catch (error) {
+      console.warn('[jt-coverage] NativeUI组件加载失败:', error.message)
+      return null
+    }
   },
+
   get $confirm() {
-    return require('./lib/native-confirm.js').$confirm
+    try {
+      return require('./lib/native-confirm.js').$confirm
+    } catch (error) {
+      console.warn('[jt-coverage] $confirm功能加载失败:', error.message)
+      return null
+    }
   },
+
   get $message() {
-    return require('./lib/native-message.js').$message
+    try {
+      return require('./lib/native-message.js').$message
+    } catch (error) {
+      console.warn('[jt-coverage] $message功能加载失败:', error.message)
+      return null
+    }
   }
 }

@@ -1,0 +1,113 @@
+{
+  "name": "@jt-coverage/vite-istanbul-tracer",
+  "version": "1.4.1",
+  "description": "Enhanced Vue coverage solution with full SourceMap trace support - equivalent to coverage-source-map-trace-plugin for Vite ecosystem",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "type": "module",
+
+  "license": "MIT",
+  "keywords": [
+    "vite-plugin-istanbul",
+    "sourcemap",
+    "coverage",
+    "istanbul",
+    "trace",
+    "vue",
+    "vite",
+    "offset",
+    "transform"
+  ],
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "vite-coverage-trace.js",
+    "vite-coverage-trace.d.ts",
+    "sourcemap-mapper.js",
+    "sourcemap-mapper.d.ts",
+    "sourcemap-mapper-v2.js",
+    "sourcemap-mapper-v2.d.ts",
+    "runtime-fix.js",
+    "runtime-fix.d.ts",
+    "diagnose-coverage.js",
+    "diagnose-coverage.d.ts",
+    "README.md",
+    "CHANGELOG.md",
+    "TROUBLESHOOTING.md",
+    "DIAGNOSIS_GUIDE.md"
+  ],
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./vite-coverage-trace": {
+      "import": "./vite-coverage-trace.js",
+      "types": "./vite-coverage-trace.d.ts"
+    },
+    "./sourcemap-mapper": {
+      "import": "./sourcemap-mapper.js",
+      "types": "./sourcemap-mapper.d.ts"
+    },
+    "./sourcemap-mapper-v2": {
+      "import": "./sourcemap-mapper-v2.js",
+      "types": "./sourcemap-mapper-v2.d.ts"
+    },
+    "./runtime-fix": {
+      "import": "./runtime-fix.js",
+      "types": "./runtime-fix.d.ts"
+    },
+    "./diagnose-coverage": {
+      "import": "./diagnose-coverage.js",
+      "require": "./diagnose-coverage.js",
+      "types": "./diagnose-coverage.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "vite": ">=2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "webpack": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@jridgewell/trace-mapping": "^0.3.25",
+    "source-map": "^0.7.4"
+  },
+  "optionalDependencies": {
+    "@babel/parser": "^7.23.0",
+    "@babel/traverse": "^7.23.0",
+    "@babel/generator": "^7.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.130",
+    "vite": "^4.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://maven.jtexpress.com.cn/nexus3/repository/npm-hosted-2/",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node -e \"const fs = require('fs'); const path = require('path'); const files = ['index.js', 'index.d.ts', 'vite-coverage-trace.js', 'vite-coverage-trace.d.ts', 'sourcemap-mapper.js', 'sourcemap-mapper.d.ts', 'sourcemap-mapper-v2.js', 'sourcemap-mapper-v2.d.ts', 'runtime-fix.js', 'runtime-fix.d.ts', 'diagnose-coverage.js', 'diagnose-coverage.d.ts', 'README.md', 'CHANGELOG.md', 'TROUBLESHOOTING.md', 'DIAGNOSIS_GUIDE.md']; const distDir = 'dist'; if (!fs.existsSync(distDir)) fs.mkdirSync(distDir); files.forEach(file => { if (fs.existsSync(file)) { fs.copyFileSync(file, path.join(distDir, file)); console.log('Copied:', file); } else { console.warn('File not found:', file); } });\"",
+    "test": "node test/simple-test.js",
+    "prepublishOnly": "npm run test & npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackypan1989/npmTest.git",
+    "directory": "packages/vite-istanbul-tracer"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/jt-coverage/issues"
+  },
+  "homepage": "https://github.com/your-org/jt-coverage#readme"
+}
