@@ -9,8 +9,8 @@
     >
       <!-- 图标部分 -->
       <div class="btn-icon">
-        <span v-if="coverage" class="coverage-icon coverage-pause">⏸</span>
-        <span v-else class="coverage-icon coverage-analysis">📊</span>
+        <video-pause v-if="coverage" />
+        <data-analysis v-else />
       </div>
 
       <!-- 状态指示器 -->
@@ -22,9 +22,14 @@
 <script>
 import { startCoveragePolling, stopCoveragePolling, collectFinalCoverage } from './devCoverage'
 import { $confirm } from './native-confirm.js'
+import { VideoPause, DataAnalysis } from './icons.js'
 
 export default {
   name: 'CoverageButton',
+  components: {
+    VideoPause,
+    DataAnalysis
+  },
   props: {
     country: { type: String, default: 'my' },
     visibleBranches: { type: Array, default: () => ['lss-test'] },
@@ -89,6 +94,5 @@ export default {
 @media (max-width:768px){.coverage-edge-btn{width:90px;transform:translateX(calc(100% - 36px))}.btn-icon{font-size:14px}.btn-label{font-size:11px}}
 @media (prefers-color-scheme: dark){.coverage-edge-btn{background:#2c2c2c;border-color:#404040;color:#fff;box-shadow:-2px 2px 8px rgba(0,0,0,.3)}.coverage-edge-btn.expanded{border-color:#409eff;background:#363636;box-shadow:-4px 4px 12px rgba(0,0,0,.4)}.coverage-edge-btn.active{background:#3d2b2b;border-color:#ff6b6b;color:#ff6b6b}.btn-label{color:#ccc}.coverage-edge-btn.active .btn-label{color:#ff6b6b}}
 .coverage-icon{display:inline-block;font-size:14px;line-height:1;vertical-align:middle}
-.coverage-pause{font-weight:bold}
-.coverage-analysis{font-size:12px}
+.btn-icon svg { display: block; }
 </style>
