@@ -16,8 +16,12 @@ export interface SetupOptions {
   forceBuildInstrument?: boolean;
   // 是否启用调试模式
   debug?: boolean;
-  // 是否自动修正SourceMap偏移
+  // 是否自动修正SourceMap偏移 (默认: true)
   autoFix?: boolean;
+  // 完全禁用 vite-istanbul-tracer (默认: false)
+  disableTracer?: boolean;
+  // 预期的行号偏移量 (默认: 2)
+  expectedLineOffset?: number;
   // 是否需要SourceMap修正功能（为必选时）
   requireSourceMapFix?: boolean;
   // 是否启用SourceMap修正

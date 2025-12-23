@@ -1,6 +1,6 @@
 {
   "name": "@jt-coverage/vite-istanbul-tracer",
-  "version": "1.4.1",
+  "version": "1.5.1",
   "description": "Enhanced Vue coverage solution with full SourceMap trace support - equivalent to coverage-source-map-trace-plugin for Vite ecosystem",
   "main": "index.js",
   "types": "index.d.ts",
